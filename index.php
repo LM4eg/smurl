@@ -1,6 +1,42 @@
 <?php
 session_start();
-include 'db.php';
+include 'db.php'; // Подключение к БД
+
+// Логика генерации и сохранения сокращенной ссылки
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['original_url'])) {
+    $originalUrl = $_POST['original_url'];
+
+    // Проверяем, является ли URL валидным
+    if (filter_var($originalUrl, FILTER_VALIDATE_URL)) {
+        // Генерируем уникальный короткий код
+        $shortCode = generateShortCode();
+
+        // Определяем ID пользователя (если зарегистрирован)
+        $userId = isset($_SESSION['user_id']) ? $_SESSION['user_id'] : null;
+
+        // Сохраняем оригинальную ссылку и её короткий код в базу данных
+        $stmt = $pdo->prepare("INSERT INTO shortened_urls (user_id, original_url, short_code) VALUES (?, ?, ?)");
+        $stmt->execute([$userId, $originalUrl, $shortCode]);
+
+        // Сохраняем сгенерированный короткий код в сессию для вывода на странице
+        $_SESSION['shortened_url'] = $shortCode;
+    } else {
+        echo "Неверный формат URL";
+    }
+}
+
+// Функция для генерации уникального короткого кода
+function generateShortCode() {
+    do {
+        $code = substr(md5(uniqid()), 0, 6); // Пример генерации короткого кода длиной 6 символов
+        global $pdo; // Используем глобальную переменную PDO для проверки уникальности кода
+        $stmt = $pdo->prepare("SELECT COUNT(*) FROM shortened_urls WHERE short_code = ?");
+        $stmt->execute([$code]);
+        $exists = $stmt->fetchColumn();
+    } while ($exists); // Повторяем, пока не найдём уникальный код
+
+    return $code;
+}
 ?>
 
 <!DOCTYPE html>
@@ -24,6 +60,7 @@ include 'db.php';
             <button type="submit" class="btn btn-primary">Сократить</button>
         </form>
 
+        <!-- Вывод сокращенной ссылки -->
         <?php if (isset($_SESSION['shortened_url'])): ?>
             <div class="mt-3">
                 <p>Ваша сокращенная ссылка:</p>
