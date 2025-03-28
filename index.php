@@ -18,7 +18,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['original_url'])) {
         $stmt = $pdo->prepare("INSERT INTO shortened_urls (user_id, original_url, short_code) VALUES (?, ?, ?)");
         $stmt->execute([$userId, $originalUrl, $shortCode]);
 
-        // Сохраняем сгенерированный короткий код в сессию для вывода на странице
+        // Сохраняем сгенерированный короткий код в сессии для вывода на странице
         $_SESSION['shortened_url'] = $shortCode;
     } else {
         echo "Неверный формат URL";
@@ -67,9 +67,11 @@ function generateShortCode() {
                 <input type="text" id="shortened_url" value="http://smurl.ru/<?php echo $_SESSION['shortened_url']; ?>" readonly class="form-control">
                 <button onclick="copyToClipboard()" class="btn btn-success mt-2">Скопировать</button>
             </div>
+            <!-- Очищаем сессию после вывода ссылки -->
+            <?php unset($_SESSION['shortened_url']); ?>
         <?php endif; ?>
     </div>
-
+    <?php include 'footer.php'; ?>
     <script>
         function copyToClipboard() {
             const copyText = document.getElementById("shortened_url");
@@ -79,5 +81,6 @@ function generateShortCode() {
             });
         }
     </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
