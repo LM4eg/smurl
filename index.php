@@ -46,11 +46,13 @@ function generateShortCode() {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SMURL - Сократить ссылку</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <?php include 'counter.php'; ?>
+    <link rel="stylesheet" href="assets/css/style.css?v=10" />
 </head>
 <body>
     <?php include 'header.php'; ?>
-
-    <div class="container mt-5">
+<div class="site-container">
+    <div class="content container mt-5">
         <h1>Сократить ссылку</h1>
         <form method="POST" action="">
             <div class="mb-3">
@@ -65,14 +67,24 @@ function generateShortCode() {
             <div class="mt-3">
                 <p>Ваша сокращенная ссылка:</p>
                 <input type="text" id="shortened_url" value="http://smurl.ru/<?php echo $_SESSION['shortened_url']; ?>" readonly class="form-control">
-                <button onclick="copyToClipboard()" class="btn btn-success mt-2">Скопировать</button>
+
+                <!-- Кнопки "Скопировать" и "Сгенерировать QR-код" -->
+                <div class="mt-2 d-flex gap-2">
+                    <button onclick="copyToClipboard()" class="btn btn-success">Скопировать</button>
+                    <button onclick="generateQRCode()" class="btn btn-info">Сгенерировать QR-код</button>
+                </div>
+
+                <!-- Отображение QR-кода -->
+                <div id="qr-code-container" class="mt-3" style="display:none;">
+                    <img id="qr-code-image" src="" alt="QR Code" class="img-fluid">
+                </div>
             </div>
             <!-- Очищаем сессию после вывода ссылки -->
             <?php unset($_SESSION['shortened_url']); ?>
         <?php endif; ?>
     </div>
-    <?php include 'footer.php'; ?>
-    <script>
+    
+        <script>
         function copyToClipboard() {
             const copyText = document.getElementById("shortened_url");
             copyText.select();
@@ -80,7 +92,26 @@ function generateShortCode() {
                 alert("Ссылка скопирована!");
             });
         }
+
+        function generateQRCode() {
+            const shortenedUrl = document.getElementById("shortened_url").value;
+            const qrCodeContainer = document.getElementById("qr-code-container");
+            const qrCodeImage = document.getElementById("qr-code-image");
+
+            // Скрываем контейнер QR-кода перед генерацией
+            qrCodeContainer.style.display = "none";
+
+            // Генерация QR-кода через API
+            qrCodeImage.src = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(shortenedUrl)}`;
+
+            // Показываем контейнер QR-кода после загрузки изображения
+            qrCodeImage.onload = function () {
+                qrCodeContainer.style.display = "block";
+            };
+        }
     </script>
+    <?php include 'footer.php'; ?>
+    </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
