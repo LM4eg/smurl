@@ -28,7 +28,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['original_url'])) {
 // Функция для генерации уникального короткого кода
 function generateShortCode() {
     do {
-        $code = substr(md5(uniqid()), 0, 6); // Пример генерации короткого кода длиной 6 символов
+        $code = substr(md5(uniqid()), 0, 6);
         global $pdo; // Используем глобальную переменную PDO для проверки уникальности кода
         $stmt = $pdo->prepare("SELECT COUNT(*) FROM shortened_urls WHERE short_code = ?");
         $stmt->execute([$code]);
@@ -66,7 +66,7 @@ function generateShortCode() {
         <?php if (isset($_SESSION['shortened_url'])): ?>
             <div class="mt-3">
                 <p>Ваша сокращенная ссылка:</p>
-                <input type="text" id="shortened_url" value="http://smurl.ru/<?php echo $_SESSION['shortened_url']; ?>" readonly class="form-control">
+                <input type="text" id="shortened_url" value="https://smurl.ru/<?php echo $_SESSION['shortened_url']; ?>" readonly class="form-control">
 
                 <!-- Кнопки "Скопировать" и "Сгенерировать QR-код" -->
                 <div class="mt-2 d-flex gap-2">
