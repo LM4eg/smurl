@@ -1,4 +1,25 @@
+# Включаем модуль RewriteEngine
 RewriteEngine On
+
+# Явное перенаправление для внутренних страниц
+RewriteRule ^index/?$ index.php [L]
+RewriteRule ^about/?$ about.php [L]
+RewriteRule ^contact/?$ contact.php [L]
+RewriteRule ^register/?$ register.php [L]
+RewriteRule ^login/?$ login.php [L]
+RewriteRule ^dashboard/?$ dashboard.php [L]
+RewriteRule ^logout/?$ logout.php [L]
+RewriteRule ^terms/?$ terms.php [L]
+RewriteRule ^privacy/?$ privacy.php [L]
+
+# Правило для обработки сокращенных ссылок
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule ^([a-zA-Z0-9]+)$ go.php?code=$1 [L]
+
+# Правило для удаления расширения .php
+RewriteCond %{DOCUMENT_ROOT}/$1.php -f
+RewriteRule ^(.*)$ $1.php [L,QSA]
+
+# Страница 404
+ErrorDocument 404 /404.php
